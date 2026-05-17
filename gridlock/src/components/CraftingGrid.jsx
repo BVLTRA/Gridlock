@@ -1,7 +1,25 @@
 import React from 'react';
-// Assuming the CSS from earlier is imported in your main App or AuthScreen
 
-const CraftingGrid = ({ currentGrid, onSlotClick }) => {
+const CraftingGrid = ({ currentGrid, onDropItem, onSlotClick }) => {
+  
+  const handleDragOver = (e) => {
+    // CRUCIAL: By default, dropping is not allowed in the browser. 
+    // Browser needs to know that it's okay to drop items, so we call preventDefault() on the dragover event. 
+    e.preventDefault(); 
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = (e, index) => {
+    e.preventDefault();
+    // Get the item ID from the dataTransfer object
+    const itemId = e.dataTransfer.getData('itemId');
+    
+    if (itemId) {
+      // Send it up to App.js
+      onDropItem(itemId, index);
+    }
+  };
+
   return (
     <div className="crafting-grid">
       {currentGrid.map((item, index) => (
@@ -9,20 +27,20 @@ const CraftingGrid = ({ currentGrid, onSlotClick }) => {
           key={index} 
           className="grid-cell" 
           data-slot={index}
-          onClick={() => onSlotClick(index)}
+          onDragOver={handleDragOver}
+          onDrop={(e) => handleDrop(e, index)}
+          onClick={() => onSlotClick(index)} // Clicks to REMOVE items (TO DO: Create tip in UI)
           style={{
-            // A little inline style to center the item perfectly inside the box
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            cursor: 'pointer' 
+            display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' 
           }}
         >
-          {/* If there is an item in this slot, render it. Otherwise, render nothing. */}
           {item && (
             <div className="crafted-item" title={item.name}>
-              {/* If you switch to images later, this becomes <img src={item.icon} alt={item.name} /> */}
-              <span style={{ fontSize: '2rem' }}>{item.icon}</span>
+              <img 
+                src={item.image} 
+                alt={item.name} 
+                style={{ width: '64px', height: '64px', imageRendering: 'pixelated' }} 
+              />
             </div>
           )}
         </div>
