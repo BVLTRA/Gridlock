@@ -46,7 +46,7 @@ const InventoryGrid = () => {
       gridTemplateColumns: 'repeat(5, 1fr)', 
       gap: '8px',
       maxWidth: '400px',
-      backgroundColor: '#0a0a0a',
+      backgroundColor: '#0a0a0a6b',
       padding: '16px',
       borderRadius: '12px',
       border: '1px solid #222'
@@ -59,7 +59,7 @@ const InventoryGrid = () => {
           title={item.name}
           style={{
             cursor: 'grab',
-            backgroundColor: '#151515',
+            backgroundColor: '#151515be',
             borderRadius: '8px',
             padding: '8px',
             display: 'flex',

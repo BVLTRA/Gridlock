@@ -1,17 +1,22 @@
 import React from 'react';
 import './AuthScreen.css';
+import GlowOrbs from './GlowOrb'; // Import the orbs here
 
 const AuthScreen = ({ leftChild, rightChild }) => {
   return (
     <div className="auth-container">
+      
+      {/* The super duper extra mega magic orbs from the wizard of the cosmos */}
+      <GlowOrbs />
+
+      {/* Content now floats above the new orbs */}
       <div className="auth-content">
         
-        {/* Left Side: Email AND Toolbox */}
+        {/* Left Side: Email and Toolbox */}
         <div className="text-section">
           <h1>Let's create<br/>your account</h1>
           <p>Join us to start building your custom workspace.</p>
           
-          {/* 1. The actual email input is back */}
           <div className="input-wrapper">
             <input 
               type="email" 
@@ -20,7 +25,6 @@ const AuthScreen = ({ leftChild, rightChild }) => {
             />
           </div>
 
-          {/* 2. A separate section for the crafting toolbox */}
           <div className="toolbox-wrapper" style={{ marginTop: '2rem' }}>
              <p style={{ color: '#888', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
                Craft your authentication key:
@@ -29,7 +33,7 @@ const AuthScreen = ({ leftChild, rightChild }) => {
           </div>
         </div>
 
-        {/* Right Side: The Interactive Grid */}
+        {/* Right Side: Grid */}
         <div className="grid-section">
            {rightChild}
         </div>
