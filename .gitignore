@@ -1,3 +1,5 @@
+.server/.env
+
 # Dependencies
 node_modules/
 /.pnp
