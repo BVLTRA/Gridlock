@@ -1,6 +1,6 @@
 import React from 'react';
 
-// We export the master list so App.js can look up items later
+// Main list
 export const MINECRAFT_ITEMS = [
   // Default Building & Crafting Materials
   { id: 'oak_planks', name: 'Oak Planks', image: '/images/Oak_planks.png' },
@@ -48,7 +48,7 @@ const InventoryGrid = () => {
       maxWidth: '400px',
       backgroundColor: '#0a0a0a6b',
       padding: '16px',
-      borderRadius: '12px',
+      borderRadius: '15px',
       border: '1px solid #222'
     }}>
       {MINECRAFT_ITEMS.map(item => (
@@ -72,7 +72,7 @@ const InventoryGrid = () => {
             src={item.image} 
             alt={item.name} 
             style={{ width: '32px', height: '32px', imageRendering: 'pixelated' }} 
-            draggable={true} // Prevents the browser's default "ghost image" dragging behavior 
+            draggable={false} // Prevents the browser's default "ghost image" dragging behavior 
           />
         </div>
       ))}

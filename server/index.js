@@ -1,3 +1,5 @@
+// Mystery copy paste file from some other file... basically a placeholder
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');

@@ -1,3 +1,4 @@
+// Very optional, may not include (AI proof of concept, not a core feature):
 // The Dictionary. The keys are the exact 9-slot state.
 const RECIPE_BOOK = {
   // Top row wood, middle stick, bottom stick
@@ -14,15 +15,16 @@ const RECIPE_BOOK = {
   }
 };
 
-// The Engine
+// END
+
+// Thinking part
 export const validateRecipe = (gridArray) => {
-  // 1. Normalize the array into a predictable string
-  // If a slot is null/undefined, make it 'empty'. Otherwise, grab the item id.
+  // Normalize the array into a string
+  // If a slot is empty, make it... 'empty'. Otherwise, grab the item id.
   const serializedGrid = gridArray.map(slot => slot ? slot.id : 'empty').join(',');
 
-  // 2. Look it up in the dictionary
+  // [OPTIONAL] Look it up in the dictionary
   const result = RECIPE_BOOK[serializedGrid];
-
-  // 3. Return the result (or null if it's gibberish)
+  
   return result || null;
 };

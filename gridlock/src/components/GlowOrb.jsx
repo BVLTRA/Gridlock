@@ -1,6 +1,5 @@
 // Credits:
 // - Gemini AI for creating the initial version of this component based on a description of the desired effect.
-// Note: Instruction format based on personal comment style and preferences.
 
 import React, { useEffect, useRef } from 'react';
 
@@ -54,7 +53,7 @@ const GlowOrbs = () => {
         top: '60%', left: '60%',
         width: '350px', height: '350px',
         borderRadius: '50%',
-        backgroundColor: 'rgba(6, 65, 4, 0.19)',
+        backgroundColor: 'rgba(6, 63, 4, 0.36)',
         filter: 'blur(80px)',
         // Pulls a max of 90px towards the mouse, making it feel "closer" to the glass
         transform: 'translate(calc(-50% + var(--mouse-x, 0) * 90px), calc(-50% + var(--mouse-y, 0) * 90px))',
