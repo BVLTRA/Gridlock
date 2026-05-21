@@ -1,17 +1,14 @@
 import React from 'react';
 import './AuthScreen.css';
-import GlowOrbs from './GlowOrb'; // Import the orbs here
+import GlowOrbs from './GlowOrb'; 
 
-const AuthScreen = ({ leftChild, rightChild }) => {
+const AuthScreen = ({ leftChild, rightChild, email, setEmail }) => {
   return (
     <div className="auth-container">
-      
       {/* The super duper extra mega magic orbs from the wizard of the cosmos */}
       <GlowOrbs />
 
-      {/* Content now floats above the new orbs */}
       <div className="auth-content">
-        
         {/* Left Side: Email and Toolbox */}
         <div className="text-section">
           <h1>Let's create<br/>your account</h1>
@@ -22,6 +19,9 @@ const AuthScreen = ({ leftChild, rightChild }) => {
               type="email" 
               placeholder="Enter your email" 
               className="email-input"
+              // The input is controlled by App.js
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -33,11 +33,10 @@ const AuthScreen = ({ leftChild, rightChild }) => {
           </div>
         </div>
 
-        {/* Right Side: Grid */}
+        {/* Right Side: Crafting Grid */}
         <div className="grid-section">
            {rightChild}
         </div>
-
       </div>
     </div>
   );
