@@ -15,10 +15,6 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  notes: {
-    type: String,
-    default: '' // Starts empty when they create an account
-  },
   gridHash: {
     type: String,
     required: true // scrambled version of their crafting grid

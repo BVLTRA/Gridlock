@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./models/User');
 const auth = require('./middleware/auth');
+const Note = require('./models/Note');
 
 // JWT library
 const jwt = require('jsonwebtoken');
@@ -94,28 +95,55 @@ app.post('/api/login', async (req, res) => {
 
 // --- PROTECTED NOTEBOOK ROUTES ---
 
-// GET: Fetch the user's saved notes
+// FETCH ALL: Get every note owned by this user, sorted by newest first
 app.get('/api/notes', auth, async (req, res) => {
   try {
-    // req.user.userId comes directly from our JWT middleware
-    const user = await User.findById(req.user.userId);
-    res.status(200).json({ notes: user.notes });
+    const notes = await Note.find({ userId: req.user.userId }).sort({ updatedAt: -1 });
+    res.status(200).json(notes);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch notes.' });
   }
 });
 
-// PUT: Update the user's notes
-app.put('/api/notes', auth, async (req, res) => {
+// CREATE NEW: Generate a fresh note document
+app.post('/api/notes', auth, async (req, res) => {
   try {
-    const { notes } = req.body;
+    const { content } = req.body;
     
-    // Find the user and update their notes field 
-    await User.findByIdAndUpdate(req.user.userId, { notes: notes });
-    
-    res.status(200).json({ message: 'Notes saved.' });
+    // Auto-generate a title by extracting the first line of the content. 
+    // If it's blank, default to 'Untitled'
+    const title = content.trim().split('\n')[0].substring(0, 40) || 'Untitled';
+
+    const newNote = new Note({
+      userId: req.user.userId,
+      title: title,
+      content: content
+    });
+
+    await newNote.save();
+    res.status(201).json(newNote);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to save notes.' });
+    res.status(500).json({ error: 'Failed to create note.' });
+  }
+});
+
+// UPDATE EXISTING: Modify a specific note via its unique ID
+app.put('/api/notes/:id', auth, async (req, res) => {
+  try {
+    const { content } = req.body;
+    const title = content.trim().split('\n')[0].substring(0, 40) || 'Untitled';
+
+    // Pass the userId into the filter alongside the note ID as a security 
+    // stuff so users cannot overwrite notes belonging to someone else.
+    const updatedNote = await Note.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.userId }, 
+      { content, title },
+      { new: true } // Tells Mongoose to return the freshly updated document
+    );
+
+    res.status(200).json(updatedNote);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update note.' });
   }
 });
 
