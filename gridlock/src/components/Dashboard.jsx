@@ -1,114 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import GlowOrbs from "./GlowOrb";
+import { useNotes } from "../hooks/useNotes"; // Bringing in the separated logic
+import './Dashboard.css'; 
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = location.state?.user || { name: "Explorer" };
 
-  // Advanced State Management
   const [activeTab, setActiveTab] = useState("Notes");
-  const [notes, setNotes] = useState([]); // Holds the array of objects from the DB
-  const [currentNoteId, setCurrentNoteId] = useState(null); // Tracks which note is currently in the editor
-  const [content, setContent] = useState("");
-  const [saveStatus, setSaveStatus] = useState("");
 
-  const typingTimeoutRef = useRef(null);
-
-  // Initial Load: Fetch all notes
-  useEffect(() => {
-    const fetchNotes = async () => {
-      const token = localStorage.getItem("gridlock_token");
-      try {
-        const response = await fetch("http://localhost:5000/api/notes", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setNotes(data);
-        }
-      } catch (err) {
-        console.error("Failed to load notes");
-      }
-    };
-    fetchNotes();
-  }, []);
-
-  // Auto-Save Logic with Debouncing
-  const handleTextChange = (e) => {
-    const newText = e.target.value;
-    setContent(newText);
-    setSaveStatus("Saving...");
-
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-
-    typingTimeoutRef.current = setTimeout(async () => {
-      const token = localStorage.getItem("gridlock_token");
-
-      try {
-        if (currentNoteId) {
-          // UPDATE EXISTING NOTE
-          const response = await fetch(
-            `http://localhost:5000/api/notes/${currentNoteId}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ content: newText }),
-            },
-          );
-          const updatedNote = await response.json();
-          if (response.ok) {
-            setSaveStatus("All changes saved");
-            // Update the specific note inside its local array so the card updates instantly
-            setNotes((prev) =>
-              prev.map((n) => (n._id === currentNoteId ? updatedNote : n)),
-            );
-          } else {
-            setSaveStatus("Failed to save");
-          }
-        } else {
-          // CREATE NEW NOTE
-          if (newText.trim() === "") return; // Dont save blank notes
-
-          const response = await fetch("http://localhost:5000/api/notes", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ content: newText }),
-          });
-          const newNote = await response.json();
-          if (response.ok) {
-            setCurrentNoteId(newNote._id); // Set the editor to this new document
-            setSaveStatus("All changes saved");
-            setNotes((prev) => [newNote, ...prev]); // Shove it at the top of the cards list
-          } else {
-            setSaveStatus("Failed to save");
-          }
-        }
-      } catch (err) {
-        setSaveStatus("Offline - Changes not saved");
-      }
-    }, 1000);
-  };
-
-  // Document Switching
-  const handleSelectNote = (note) => {
-    setCurrentNoteId(note._id);
-    setContent(note.content);
-    setSaveStatus("");
-  };
-
-  const handleCreateNew = () => {
-    setCurrentNoteId(null);
-    setContent("");
-    setSaveStatus("");
-  };
+  // Destructuring all the note-related state and handlers from our custom hook
+  const { 
+    notes, currentNoteId, content, saveStatus, 
+    handleTextChange, handleSelectNote, handleCreateNew 
+  } = useNotes();
 
   const handleLogout = () => {
     localStorage.removeItem("gridlock_token");
@@ -135,44 +42,6 @@ const Dashboard = () => {
         overflow: "hidden",
       }}
     >
-      {/* CSS for hover states */}
-      <style>
-        {`
-          .nav-link {
-            cursor: pointer;
-            color: #888;
-            text-decoration: none;
-            text-underline-offset: 8px;
-            transition: all 0.2s ease;
-          }
-          .nav-link:hover {
-            color: #fff;
-          }
-          .nav-link.active {
-            color: #fff;
-            text-decoration: underline;
-          }
-          .note-card {
-            background-color: #111;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 20px;
-            cursor: pointer;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-          }
-          .note-card:hover {
-            transform: translateY(-2px);
-            border-color: #555;
-          }
-          .note-card.active-card {
-            border-color: #fff;
-          }
-        `}
-      </style>
-
       <GlowOrbs />
 
       <div style={{ position: "relative", zIndex: 10, paddingBottom: "4rem" }}>
@@ -234,7 +103,7 @@ const Dashboard = () => {
           </div>
         </nav>
 
-        {/* MAIN CONTENT ZONEEE */}
+        {/* MAIN CONTENT ZONE */}
         {activeTab === "Notes" && (
           <main
             style={{
@@ -293,14 +162,20 @@ const Dashboard = () => {
                 padding: "24px",
                 fontSize: "1.1rem",
                 lineHeight: "1.6",
-
                 resize: "none", 
-
                 outline: "none",
                 transition: "border-color 0.5s ease",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#ffffff", e.target.style.backgroundColor = "#111111e0", e.target.style.borderWidth = "1px")}
-              onBlur={(e) => (e.target.style.borderColor = "#333", e.target.style.backgroundColor = "#111111b2", e.target.style.borderWidth = "1px")}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#ffffff";
+                e.target.style.backgroundColor = "#111111e0";
+                e.target.style.borderWidth = "1px";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#333";
+                e.target.style.backgroundColor = "#111111b2";
+                e.target.style.borderWidth = "1px";
+              }}
             />
 
             {/* Status Indicator Line */}
@@ -352,8 +227,9 @@ const Dashboard = () => {
                   <div
                     key={note._id}
                     className={`note-card ${currentNoteId === note._id ? "active-card" : ""}`}
-                    style={{backgroundColor: currentNoteId === note._id ? "#141414" : "#000000b2",
-                        borderWidth: currentNoteId === note._id ? "1px" : "1px"
+                    style={{
+                      backgroundColor: currentNoteId === note._id ? "#141414" : "#000000b2",
+                      borderWidth: "1px"
                     }}
                     onClick={() => handleSelectNote(note)}
                   >
