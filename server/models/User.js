@@ -3,12 +3,21 @@ const bcrypt = require('bcryptjs');
 
 // Structure
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
   email: {
     type: String,
     required: true,
     unique: true, 
     lowercase: true,
     trim: true
+  },
+  notes: {
+    type: String,
+    default: '' // Starts empty when they create an account
   },
   gridHash: {
     type: String,

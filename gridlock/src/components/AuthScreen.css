@@ -135,3 +135,56 @@
     font-size: 3.5rem;
   }
 }
+
+/* TOAST ANIMATION */
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* THE TOAST CONTAINER */
+.toast-message {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  /* translateX(-50%) perfectly centers a fixed element horizontally */
+  transform: translateX(-50%); 
+  z-index: 9999; /* Guarantees it floats above the orbs and the grid; can never be too sure */
+  
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: 0.3px;
+  
+  /* Glassmorphism effect... [word of the day lol] */
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  
+  /* Trigger the animation */
+  animation: slideDownFade 0.3s ease-out forwards;
+  
+  /* IMPORTANT: ensures the toast doesn't block the user from clicking 
+     things that are physically underneath it while it fades away */
+  pointer-events: none; 
+}
+
+/* Success State */
+.toast-success {
+  background-color: rgba(0, 255, 0, 0.1);
+  color: #4ade80; /* A high-visibility mint green */
+  border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+/* Error State */
+.toast-error {
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff8a8a; /* A soft, readable red */
+  border: 1px solid rgba(255, 77, 77, 0.2);
+}

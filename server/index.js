@@ -2,8 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
 const User = require('./models/User');
+const auth = require('./middleware/auth');
+
+// JWT library
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -16,48 +19,42 @@ mongoose.connect(uri)
   .then(() => console.log('✅ Connected to the Vault (MongoDB)'))
   .catch(err => console.error('❌ Database connection failed:', err));
 
-// --- REGISTRATION ENDPOINT ---
 app.post('/api/register', async (req, res) => {
   try {
-   
-    const { email, gridString } = req.body;
+    const { name, email, gridString } = req.body;
 
-    // Surface-level validation
-    if (!email || !gridString) {
-      // 400 means "Bad Request" - the user forgot a required field
-      return res.status(400).json({ error: 'Email and grid password are required.' });
+    if (!name || !email || !gridString) {
+      return res.status(400).json({ error: 'Name, email, and grid password are required.' });
     }
 
-    // Check for duplicates
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered.' });
     }
 
-    // Construct the User
-    // Notice how the code is passing the raw 'gridString' into the 'gridHash' field.
-    // Because of the 'pre-save' hook i wrote in User.js, Mongoose will intercept 
-    // this raw string, hash it, and swap it out before it ever hits the database. 
-    // so like, dont worry
-    const newUser = new User({
-      email: email,
-      gridHash: gridString 
-    });
-
-    // Commit to the database
+    const newUser = new User({ name, email, gridHash: gridString });
     await newUser.save();
 
-    // 201 means "Created"
-    res.status(201).json({ message: 'Account secured and created successfully!' });
+    // Generate the Token
+    // Sign the user's unique database ID and set the token to expire in 7 days
+    const token = jwt.sign(
+      { userId: newUser._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({ 
+      message: 'Account secured and created successfully!',
+      user: { name: newUser.name, email: newUser.email },
+      token: token // Sending token back
+    });
 
   } catch (error) {
-    // 500 means "Internal Server Error" - the server broke down
     console.error('Registration Error:', error);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
 
-// --- THE LOGIN ENDPOINT ---
 app.post('/api/login', async (req, res) => {
   try {
     const { email, gridString } = req.body;
@@ -66,28 +63,59 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and grid password are required.' });
     }
 
-    // Find user
     const user = await User.findOne({ email });
-    
-    // Security mechanism: We give a generic error for both wrong email and wrong password. 
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or crafting key.' });
     }
 
-    // Verification 
     const isMatch = await user.compareGrid(gridString);
-    
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or crafting key.' });
     }
 
-    // YAYYYY
-    // Where i intend togenerate a JWT (JSON Web Token) here.
-    res.status(200).json({ message: 'Authentication successful! Access granted.' });
+    // Generate the Token for returning users
+    const token = jwt.sign(
+      { userId: user._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.status(200).json({ 
+      message: 'Authentication successful! Access granted.',
+      user: { name: user.name, email: user.email },
+      token: token // Sending the real token back
+    });
 
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// --- PROTECTED NOTEBOOK ROUTES ---
+
+// GET: Fetch the user's saved notes
+app.get('/api/notes', auth, async (req, res) => {
+  try {
+    // req.user.userId comes directly from our JWT middleware
+    const user = await User.findById(req.user.userId);
+    res.status(200).json({ notes: user.notes });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch notes.' });
+  }
+});
+
+// PUT: Update the user's notes
+app.put('/api/notes', auth, async (req, res) => {
+  try {
+    const { notes } = req.body;
+    
+    // Find the user and update their notes field 
+    await User.findByIdAndUpdate(req.user.userId, { notes: notes });
+    
+    res.status(200).json({ message: 'Notes saved.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save notes.' });
   }
 });
 

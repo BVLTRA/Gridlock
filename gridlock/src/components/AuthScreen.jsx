@@ -2,41 +2,36 @@ import React from 'react';
 import './AuthScreen.css';
 import GlowOrbs from './GlowOrb'; 
 
-const AuthScreen = ({ leftChild, rightChild, email, setEmail }) => {
+const AuthScreen = ({ title, subtitle, formInputs, toolbox, gridZone }) => {
   return (
     <div className="auth-container">
-      {/* The super duper extra mega magic orbs from the wizard of the cosmos */}
       <GlowOrbs />
 
       <div className="auth-content">
-        {/* Left Side: Email and Toolbox */}
+        
+        {/* Left Side: Typography and Dynamic Inputs */}
         <div className="text-section">
-          <h1>Let's create<br/>your account</h1>
-          <p>Join us to start building your custom workspace.</p>
+          {/* These are now injected by App.js */}
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
           
-          <div className="input-wrapper">
-            <input 
-              type="email" 
-              placeholder="Enter your email" 
-              className="email-input"
-              // The input is controlled by App.js
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <div className="form-inputs-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '400px' }}>
+            {formInputs}
           </div>
 
           <div className="toolbox-wrapper" style={{ marginTop: '2rem' }}>
              <p style={{ color: '#888', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
                Craft your authentication key:
              </p>
-             {leftChild}
+             {toolbox}
           </div>
         </div>
 
-        {/* Right Side: Crafting Grid */}
+        {/* Right Side: The Grid and Buttons */}
         <div className="grid-section">
-           {rightChild}
+           {gridZone}
         </div>
+
       </div>
     </div>
   );
