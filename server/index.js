@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = process.env.MONGO_URI; 
+const uri = process.env.MONGO_URI;
 
 mongoose.connect(uri)
   .then(() => console.log('✅ Connected to the Vault (MongoDB)'))
@@ -39,14 +39,19 @@ app.post('/api/register', async (req, res) => {
     // Generate the Token
     // Sign the user's unique database ID and set the token to expire in 7 days
     const token = jwt.sign(
-      { userId: newUser._id }, 
-      process.env.JWT_SECRET, 
+      { userId: newUser._id },
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Account secured and created successfully!',
-      user: { name: newUser.name, email: newUser.email },
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt // Added this so React can see it
+      },
       token: token // Sending token back
     });
 
@@ -76,20 +81,51 @@ app.post('/api/login', async (req, res) => {
 
     // Generate the Token for returning users
     const token = jwt.sign(
-      { userId: user._id }, 
-      process.env.JWT_SECRET, 
+      { userId: user._id },
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: 'Authentication successful! Access granted.',
-      user: { name: user.name, email: user.email },
+      user: { 
+        name: user.name, 
+        email: user.email, 
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt // Added this so React can see it
+      },
       token: token // Sending the real token back
     });
 
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// UPDATE PROFILE: Modify the user's name
+app.put('/api/user/name', auth, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: 'Name cannot be empty.' });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId, 
+      { name: name },
+      { new: true } 
+    );
+
+    res.status(200).json({ 
+      message: 'Profile updated.',
+      user: { 
+        name: updatedUser.name, 
+        email: updatedUser.email, 
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profile.' });
   }
 });
 
@@ -109,7 +145,7 @@ app.get('/api/notes', auth, async (req, res) => {
 app.post('/api/notes', auth, async (req, res) => {
   try {
     const { content } = req.body;
-    
+
     // Auto-generate a title by extracting the first line of the content. 
     // If it's blank, default to 'Untitled'
     const title = content.trim().split('\n')[0].substring(0, 40) || 'Untitled';
@@ -136,7 +172,7 @@ app.put('/api/notes/:id', auth, async (req, res) => {
     // Pass the userId into the filter alongside the note ID as a security 
     // stuff so users cannot overwrite notes belonging to someone else.
     const updatedNote = await Note.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user.userId }, 
+      { _id: req.params.id, userId: req.user.userId },
       { content, title },
       { new: true } // Tells Mongoose to return the freshly updated document
     );
