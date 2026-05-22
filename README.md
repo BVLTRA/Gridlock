@@ -1,5 +1,5 @@
 # GRIDLOCK // Notebook
-
+<img src="gridlock/public/images/mockup.png" alt="Header image" width="100%" height="auto">
 Gridlock is a full-stack, secure notebook application built to explore alternative authentication mechanics. Rather than relying on traditional alphanumeric passwords, Gridlock introduces a spatial, visually-driven login system.
 
 ## The Purpose
