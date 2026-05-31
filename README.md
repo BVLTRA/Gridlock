@@ -243,4 +243,4 @@ Inspiration, code snippets, etc.
 * **[Minecraft Wiki](https://minecraft.wiki/w/Item)** - For the foundational item sprites (Diamond, Redstone, etc.) used in the grid interface.
 * **Open Window Institute** - For the environment and feedback that helped shape this project.
 * A massive thank you to *Litchi N* for keeping me sane during those deep-dive debugging loops. xoxo
-* **[awesome-readme](https://github.com/matiassingers/awesome-readme)** 4sXJ3UXWrUH-LM15hsbf9oEEOKk8?usp=sharing
+* **[awesome-readme](https://github.com/matiassingers/awesome-readme)** 
