@@ -12,7 +12,7 @@ export const useNotes = () => {
     const fetchNotes = async () => {
       const token = localStorage.getItem("gridlock_token");
       try {
-        const response = await fetch("http://localhost:5000/api/notes", {
+        const response = await fetch("https://gridlock-backend-68597312080.us-central1.run.app", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
@@ -36,7 +36,7 @@ export const useNotes = () => {
       const token = localStorage.getItem("gridlock_token");
       try {
         if (currentNoteId) {
-          const response = await fetch(`http://localhost:5000/api/notes/${currentNoteId}`, {
+          const response = await fetch(`https://gridlock-backend-68597312080.us-central1.run.app/api/notes/${currentNoteId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ content: newText }),
@@ -50,7 +50,7 @@ export const useNotes = () => {
           }
         } else {
           if (newText.trim() === "") return;
-          const response = await fetch("http://localhost:5000/api/notes", {
+          const response = await fetch("https://gridlock-backend-68597312080.us-central1.run.app/api/notes", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ content: newText }),
