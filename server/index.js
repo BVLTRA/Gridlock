@@ -58,6 +58,7 @@ app.post('/api/register', async (req, res) => {
   } catch (error) {
     console.error('Registration Error:', error);
     res.status(500).json({ error: 'Internal server error.' });
+    process.exit(1);
   }
 });
 
@@ -181,6 +182,10 @@ app.put('/api/notes/:id', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to update note.' });
   }
+});
+
+app.get('/', (req, res) => {
+  res.send('Gridlock Backend is running and connected successfully!');
 });
 
 const PORT = process.env.PORT || 5000;

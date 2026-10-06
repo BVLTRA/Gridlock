@@ -96,7 +96,7 @@ const AuthFlow = () => {
     }
     const gridString = grid.map(slot => slot ? slot.id : 'empty').join(',');
     try {
-      const response = await fetch('https://gridlock-backend-68597312080.us-central1.run.app', {
+      const response = await fetch('https://gridlock-backend-68597312080.us-central1.run.app/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, gridString })
