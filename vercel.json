@@ -1,21 +1,26 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "gridlock": {
-      "root": "gridlock",
-      "framework": "create-react-app"
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/index.js",
+      "use": "@vercel/node"
     },
-    "server": {
-      "root": "server",
-      "framework": "express"
+    {
+      "src": "gridlock/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
     }
-  },
+  ],
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/server/index.js"
+    },
+    {
       "source": "/(.*)",
-      "destination": {
-        "service": "server"
-      }
+      "destination": "/gridlock/$1"
     }
   ]
 }

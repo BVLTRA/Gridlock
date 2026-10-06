@@ -27,7 +27,7 @@ const Account = () => {
     
     const token = localStorage.getItem("gridlock_token");
     try {
-      const response = await fetch("https://gridlock-backend-68597312080.us-central1.run.app/api/user/name", {
+      const response = await fetch("/api/user/name", {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: editNameValue })
